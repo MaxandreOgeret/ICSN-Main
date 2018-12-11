@@ -3,10 +3,13 @@ import glob
 import pandas as pd
 import xml.etree.ElementTree as ET
 import sys
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
 
-if len(sys.argv) != 2 :
-	raise ValueError('Please specify one parameter : the XML folder')
-
+flags = tf.app.flags
+flags.DEFINE_string('xml_path', '', 'Path to the XML folder')
+flags.DEFINE_string('test_size', '', 'Size of the test dataset')
+FLAGS = flags.FLAGS
 
 def xml_to_csv(path):
     xml_list = []
@@ -26,14 +29,21 @@ def xml_to_csv(path):
             xml_list.append(value)
     column_name = ['filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax']
     xml_df = pd.DataFrame(xml_list, columns=column_name)
-    return xml_df
+
+    xml_train, xml_test = train_test_split(xml_df, test_size=float(FLAGS.test_size), random_state=0)
+
+    return xml_train, xml_test
 
 
-def main():
-    image_path = os.path.join(os.getcwd(), sys.argv[1])
-    xml_df = xml_to_csv(image_path)
-    xml_df.to_csv('labels.csv', index=None)
-    print('Successfully converted xml to csv.')
+def main(_):
+    image_path = os.path.join(os.getcwd(), FLAGS.xml_path)
+    xml_train, xml_test = xml_to_csv(image_path)
+    
+    xml_train.to_csv('data/train.csv', index=None)
+    xml_test.to_csv('data/test.csv', index=None)
+    
+    print('Successfully created test and train CSV files from XML.')
 
 
-main()
+if __name__ == '__main__':
+    tf.app.run()

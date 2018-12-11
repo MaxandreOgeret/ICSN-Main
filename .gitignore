@@ -1,0 +1,11 @@
+.idea
+__pycache__
+.gitkeep
+output.csv
+xml/*
+!xml/.gitkeep
+images/*
+!images/.gitkeep
+data/*
+!data/.gitkeep
+tfRecord/
